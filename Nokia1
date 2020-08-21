@@ -1,0 +1,400 @@
+#include <stdio.h>
+#include <conio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+typedef struct student
+{
+	char nume[30];
+	int an;
+	int note_curs[10];
+	float medie;
+	struct student* urm;
+}nod;
+nod* prim;
+
+nod* adauga(char nume[], int an, int note_curs[])
+{
+	int total;
+	nod* p, * q;
+	total = 0;
+	p = (nod*)malloc(sizeof(nod));
+	//p->nume = (char*)malloc(sizeof(nume) + 1);
+	strcpy(p->nume, nume);
+	
+	p->an = an;
+	for (int i = 0; i < 10; i++)
+	{
+		p->note_curs[i] = note_curs[i];
+		total += note_curs[i];
+		
+
+	}
+	p->medie = total / 10.0;
+	p->urm = NULL;
+
+	if (p == NULL || p->nume == NULL)
+	{
+		printf("eroare la alocare");
+		exit(0);
+	}
+	if (prim == NULL)
+	{
+		return p;
+	}
+	else
+		if (strcmp(prim->nume, p->nume) > 0)
+		{
+			p->urm = prim;
+			prim = p;
+		}
+		else
+		{
+			q = prim;
+			while (q->urm != NULL && strcmp(q->urm->nume, p->nume) < 0)
+				q = q->urm;
+			p->urm = q->urm;
+			q->urm = p;
+			return prim;
+		}
+}
+
+
+void afisare()
+{
+	nod* q;
+	q = prim;
+	while (q != NULL)
+	{
+		printf("\n %s %d %.2f \n",q->nume, q->an, q->medie);
+		for (int i = 0; i < 10; i++)
+		{
+			printf("Nota studentului este: %d ", q->note_curs[i]);
+			printf("\n");
+		}
+		q = q->urm;
+	}
+}
+
+void afisare_medie()
+{
+	nod* p;
+	p = prim;
+	while (p != NULL)
+	{
+		printf(" Studentul %s are media %.2f \n", p->nume, p->medie);
+		p = p->urm;
+	}
+	
+}
+
+void studenti_majori()
+{
+	nod* p;
+	p = prim;
+	while (p != NULL)
+	{
+		if (p->an >= 3 && p->medie >= 8)
+			printf("%s %d %.2f \n", p->nume, p->an, p->medie);
+		p = p->urm;
+	}
+}
+
+void sortare_medie(nod** prim)
+{
+	int schimb;
+	nod* a = NULL, * b, * c;
+	do
+	{
+		schimb = 0;
+		b = *prim;
+		a = NULL;
+		while (b)
+		{
+			if (b->urm)
+			{
+				c = b->urm;
+				if (b->medie < c->medie)
+				{
+					b->urm = c->urm;
+					c->urm = b;
+					if (a)      //daca exista element anterior nu ne aflam la inceputul listei
+						a->urm = c;
+					else
+						*prim = c;
+					schimb = 1;
+				}
+				else 
+					if (b->medie == c->medie)
+					{
+						if (strcmp(b->nume, c->nume) > 0)
+						{
+							b->urm = c->urm;
+							c->urm = b;
+							if (a)    
+								a->urm = c;
+							else
+								*prim = c;
+							schimb = 1;
+
+						}
+					}
+			}
+			a = b;
+			b = b->urm;
+		}
+	} while (schimb);
+}
+
+void afisare_sortare()
+{
+	nod* p;
+	p = prim;
+	while (p != NULL)
+	{
+			printf("%s %d %.2f \n", p->nume, p->an, p->medie);
+		p = p->urm;
+	}
+}
+
+nod* inserare_la_inceput( char nume[], int an, int note_curs[])
+{
+	int total = 0;
+	nod* p;
+	p = (nod*)malloc(sizeof(nod));
+//	p->nume = (char*)malloc(sizeof(nume) + 1);
+	strcpy(p->nume, nume);
+	p->an = an;
+	for (int j = 0; j < 10; j++)
+	{
+		p->note_curs[j] = note_curs[j];
+		total += note_curs[j];
+
+
+	}
+	p->medie = total / 10.0;
+
+	if (p != NULL)
+	{
+		p->urm = prim;
+		prim = p;
+	}
+
+	return prim;
+}
+
+nod* adaugare_k(char nume[], int an, int note_curs[], int pozitia)
+{
+	int i=0,count,total;
+	nod* p, * q;
+	p = (nod*)malloc(sizeof(nod));
+	total = 0;
+	if (p == NULL)
+	{
+		printf("Eroare la alocare");
+		exit(0);
+	}
+	count = 1;
+	//p->nume = (char*)malloc(sizeof(nume) + 1);
+	strcpy(p->nume, nume);
+
+	p->an = an;
+	for (int j = 0; j < 10; j++)
+	{
+		p->note_curs[j] = note_curs[j];
+		total += note_curs[j];
+	}
+	p->medie = total / 10.0;
+
+	
+
+	if (prim == NULL || pozitia == 0) {
+		prim = inserare_la_inceput( nume, an, note_curs);
+
+	}
+
+	else
+		for (q = prim; q && count != pozitia; q = q->urm)
+		{
+			count++;
+		}
+
+	if (pozitia > count)
+	{
+		printf("\n Pozitia nu a fost gasita, am adaugat studentul la inceput \n");
+		prim = inserare_la_inceput( nume, an, note_curs);
+	}
+
+	if(pozitia != 0)
+	if (q != NULL )
+	{
+		p->urm = q->urm;
+		q->urm = p;
+		return prim;
+	}
+	return prim;
+}
+
+
+
+nod* stergere()
+{
+	nod *p, *q;
+	if (prim != NULL)
+	{
+		if (prim->medie < 5)
+		{
+			q = prim;
+			prim = prim->urm;
+//			free(q->nume);
+			free(q);
+			return prim;
+		}
+		q = prim;
+		while (q->urm != NULL && q->urm->medie > 5)
+			q = q->urm;
+		if (q->urm != NULL && q->urm->medie < 5)
+		{
+			p = q->urm;
+			q->urm = q->urm->urm;
+//			free(p->nume);
+			free(p);
+		}
+		return prim;
+	}
+	else
+		return prim;
+
+}
+
+
+
+int main()
+{
+	int opt,an,note_curs[11],s=0,poz;
+	float medie;
+	char nume[10];
+	nod*p, *q;
+	prim = NULL;
+	do
+	{
+		printf("1.Adaugati elemente in lista \n");
+		printf("2.Afisati elemente in lista \n");
+		printf("3.Calculati media generala a studentului \n");
+		printf("4.Afisati studentii in ordine descrescatoare a mediei \n");
+		printf("5.Afisati tot studentii din anul 3 cu medie >8 \n");
+		printf("6.Inserati un student dupa o pozitie data \n");
+		printf("7.Eliminati studentii nepromovati \n");
+		printf("8.Iesire \n");
+		printf("Dati optiunea: \n");
+	r1:
+		{
+			scanf("%d", &opt);
+			if (opt < 1 || opt>8)
+			{
+				printf("Dati o optiune valida! \n");
+				goto r1;
+			}
+		}
+		switch (opt)
+		{
+		case 1:
+			printf("Numele: ");
+			scanf("%s", nume);
+		r2:
+			{
+				printf("Anul de studii: ");
+				scanf("%d", &an);
+				if (an < 1 || an>6)
+				{
+					printf("Anul introdus nu este corect! \n");
+					goto r2;
+				}
+			}
+				printf("Nota pentru fiecare materie(10): ");
+				for (int i = 0; i < 10; i++)
+				{
+				r3:
+					{
+						scanf("%d", &note_curs[i]);
+						if (note_curs[i] < 0 || note_curs[i]>10)
+						{
+							printf("Nota introdusa nu este corecta! \n");
+							goto r3;
+						}
+					}
+					s = s + note_curs[i];
+				}
+			
+
+			medie = (float) s / 10;
+			prim = adauga(nume, an, note_curs);
+			s = 0;
+			break;
+
+		case 2:
+			afisare();
+			break;
+
+		case 3:
+			afisare_medie();
+			break;
+
+		case 4:
+			sortare_medie(&prim);
+			afisare_sortare();
+			break;
+
+		case 5:
+			studenti_majori();
+			break;
+
+		case 6:
+			printf("Numele: ");
+			scanf("%s", nume);
+		r4:
+			{
+				printf("Anul de studii: ");
+				scanf("%d", &an);
+				if (an < 1 || an>6)
+				{
+					printf("Anul introdus nu este corect! \n");
+					goto r4;
+				}
+			}
+
+			printf("Nota pentru fiecare materie(10): ");
+			for (int i = 0; i < 10; i++)
+			{
+			r5:
+				{
+					scanf("%d", &note_curs[i]);
+					if (note_curs[i] < 0 || note_curs[i]>10)
+					{
+						printf("Nota introdusa nu este corecta! \n");
+						goto r5;
+					}
+				}
+				s = s + note_curs[i];
+			}
+			medie = (float)s / 10;
+			printf("Dati pozitia pe care sa introducem elementul: ");
+			scanf("%d", &poz);
+
+			q=adaugare_k(nume, an, note_curs, poz);
+			afisare_sortare();
+			break;
+
+		case 7:
+			p=stergere();
+			afisare_sortare();
+			break;
+
+		case 8:
+			break;
+		}
+	} while (opt!=8);
+
+	return 0;
+}
